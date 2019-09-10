@@ -1,8 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Kreait\Firebase\Http;
+namespace Firebase\Http;
 
 use Psr\Http\Message\RequestInterface;
 
@@ -13,6 +11,10 @@ interface Auth
 {
     /**
      * Returns an authenticated request from the given request.
+     *
+     * @param RequestInterface $request
+     *
+     * @return RequestInterface
      */
     public function authenticateRequest(RequestInterface $request): RequestInterface;
 }

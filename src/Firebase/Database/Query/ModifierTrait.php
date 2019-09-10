@@ -1,23 +1,17 @@
 <?php
 
-declare(strict_types=1);
+namespace Firebase\Database\Query;
 
-namespace Kreait\Firebase\Database\Query;
-
-use function GuzzleHttp\Psr7\build_query;
-use function GuzzleHttp\Psr7\parse_query;
+use GuzzleHttp\Psr7;
 use Psr\Http\Message\UriInterface;
 
-/**
- * @codeCoverageIgnore
- */
 trait ModifierTrait
 {
     protected function appendQueryParam(UriInterface $uri, string $key, $value): UriInterface
     {
-        $queryParams = \array_merge(parse_query($uri->getQuery()), [$key => $value]);
+        $queryParams = array_merge(Psr7\parse_query($uri->getQuery()), [$key => $value]);
 
-        $queryString = build_query($queryParams);
+        $queryString = Psr7\build_query($queryParams);
 
         return $uri->withQuery($queryString);
     }

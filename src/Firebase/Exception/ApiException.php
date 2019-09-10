@@ -1,28 +1,30 @@
 <?php
 
-declare(strict_types=1);
+namespace Firebase\Exception;
 
-namespace Kreait\Firebase\Exception;
+use Fig\Http\Message\StatusCodeInterface as StatusCode;
+use Firebase\Util\JSON;
+use GuzzleHttp\Exception\RequestException;
 
-use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\ResponseInterface;
-
-/**
- * @deprecated 4.28.0 catch specific exceptions or \Kreait\Firebase\Exception\FirebaseException instead
- */
-interface ApiException extends FirebaseException
+class ApiException extends \RuntimeException implements FirebaseException
 {
-    /**
-     * @deprecated 4.28.0
-     *
-     * @return RequestInterface|null
-     */
-    public function getRequest();
+    public static function wrapThrowable(\Throwable $e): ApiException
+    {
+        if ($e instanceof self) {
+            return $e;
+        }
 
-    /**
-     * @deprecated 4.28.0
-     *
-     * @return ResponseInterface|null
-     */
-    public function getResponse();
+        $message = $e->getMessage();
+        $code = $e->getCode();
+
+        if ($e instanceof RequestException && $response = $e->getResponse()) {
+            $message = JSON::decode((string) $response->getBody(), true)['error'] ?? $message;
+        }
+
+        if (in_array($code, [StatusCode::STATUS_UNAUTHORIZED, StatusCode::STATUS_FORBIDDEN], true)) {
+            return new PermissionDenied($message, $code, $e);
+        }
+
+        return new self($e->getMessage(), $e->getCode(), $e);
+    }
 }

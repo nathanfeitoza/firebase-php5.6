@@ -1,12 +1,10 @@
 <?php
 
-declare(strict_types=1);
+namespace Firebase\Database\Query\Filter;
 
-namespace Kreait\Firebase\Database\Query\Filter;
-
-use Kreait\Firebase\Database\Query\Filter;
-use Kreait\Firebase\Database\Query\ModifierTrait;
-use Kreait\Firebase\Exception\InvalidArgumentException;
+use Firebase\Database\Query\Filter;
+use Firebase\Database\Query\ModifierTrait;
+use Firebase\Exception\InvalidArgumentException;
 use Psr\Http\Message\UriInterface;
 
 final class LimitToLast implements Filter

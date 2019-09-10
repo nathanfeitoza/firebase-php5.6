@@ -1,193 +1,81 @@
 <?php
 
-declare(strict_types=1);
+namespace Firebase\Database;
 
-namespace Kreait\Firebase\Database;
-
+use Fig\Http\Message\RequestMethodInterface as RequestMethod;
+use Firebase\Exception\ApiException;
+use Firebase\Http\Auth;
+use Firebase\Http\Middleware;
+use Firebase\Util\JSON;
+use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Psr7\Request;
-use Kreait\Firebase\Exception\DatabaseApiExceptionConverter;
-use Kreait\Firebase\Exception\DatabaseException;
-use Kreait\Firebase\Util\JSON;
+use GuzzleHttp\HandlerStack;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\UriInterface;
-use Throwable;
 
-/**
- * @internal
- */
 class ApiClient
 {
-    /** @var ClientInterface */
+    /**
+     * @var ClientInterface
+     */
     protected $httpClient;
 
-    /** @var DatabaseApiExceptionConverter */
-    protected $errorHandler;
-
-    /**
-     * @internal
-     */
     public function __construct(ClientInterface $httpClient)
     {
         $this->httpClient = $httpClient;
-        $this->errorHandler = new DatabaseApiExceptionConverter();
     }
 
-    /**
-     * @param UriInterface|string $uri
-     *
-     * @throws DatabaseException
-     *
-     * @return mixed
-     */
+    public function withCustomAuth(Auth $auth)
+    {
+        $config = $this->httpClient->getConfig();
+
+        /** @var HandlerStack $stack */
+        $stack = clone $config['handler'];
+        $stack->push(Middleware::overrideAuth($auth), 'auth_override');
+
+        $config['handler'] = $stack;
+
+        $client = new Client($config);
+
+        return new self($client);
+    }
+
     public function get($uri)
     {
-        $response = $this->request('GET', $uri);
+        $response = $this->request(RequestMethod::METHOD_GET, $uri);
 
         return JSON::decode((string) $response->getBody(), true);
     }
 
-    /**
-     * @internal This method should only be used in the context of Database transations
-     *
-     * @param UriInterface|string $uri
-     *
-     * @throws DatabaseException
-     */
-    public function getWithETag($uri): array
-    {
-        $response = $this->request('GET', $uri, [
-            'headers' => [
-                'X-Firebase-ETag' => 'true',
-            ],
-        ]);
-
-        $value = JSON::decode((string) $response->getBody(), true);
-        $etag = $response->getHeaderLine('ETag');
-
-        return [
-            'value' => $value,
-            'etag' => $etag,
-        ];
-    }
-
-    /**
-     * @param UriInterface|string $uri
-     * @param mixed $value
-     *
-     * @throws DatabaseException
-     *
-     * @return mixed
-     */
     public function set($uri, $value)
     {
-        $response = $this->request('PUT', $uri, ['json' => $value]);
+        $response = $this->request(RequestMethod::METHOD_PUT, $uri, ['body' => JSON::encode($value)]);
 
         return JSON::decode((string) $response->getBody(), true);
     }
 
-    /**
-     * @internal This method should only be used in the context of Database transations
-     *
-     * @param UriInterface|string $uri
-     * @param mixed $value
-     *
-     * @throws DatabaseException
-     *
-     * @return mixed
-     */
-    public function setWithEtag($uri, $value, string $etag)
+    public function push($uri, $value)
     {
-        $response = $this->request('PUT', $uri, [
-            'headers' => [
-                'if-match' => $etag,
-            ],
-            'json' => $value,
-        ]);
-
-        return JSON::decode((string) $response->getBody(), true);
-    }
-
-    /**
-     * @internal This method should only be used in the context of Database transations
-     *
-     * @param UriInterface|string $uri
-     *
-     * @throws DatabaseException
-     */
-    public function removeWithEtag($uri, string $etag)
-    {
-        $this->request('DELETE', $uri, [
-            'headers' => [
-                'if-match' => $etag,
-            ],
-        ]);
-    }
-
-    /**
-     * @param UriInterface|string $uri
-     *
-     * @throws DatabaseException
-     *
-     * @return mixed
-     */
-    public function updateRules($uri, RuleSet $ruleSet)
-    {
-        $response = $this->request('PUT', $uri, [
-            'body' => \json_encode($ruleSet, \JSON_PRETTY_PRINT),
-        ]);
-
-        return JSON::decode((string) $response->getBody(), true);
-    }
-
-    /**
-     * @param UriInterface|string $uri
-     * @param mixed $value
-     *
-     * @throws DatabaseException
-     */
-    public function push($uri, $value): string
-    {
-        $response = $this->request('POST', $uri, ['json' => $value]);
+        $response = $this->request(RequestMethod::METHOD_POST, $uri, ['body' => JSON::encode($value)]);
 
         return JSON::decode((string) $response->getBody(), true)['name'];
     }
 
-    /**
-     * @param UriInterface|string $uri
-     *
-     * @throws DatabaseException
-     */
     public function remove($uri)
     {
-        $this->request('DELETE', $uri);
+        $this->request(RequestMethod::METHOD_DELETE, $uri);
     }
 
-    /**
-     * @param UriInterface|string $uri
-     *
-     * @throws DatabaseException
-     */
     public function update($uri, array $values)
     {
-        $this->request('PATCH', $uri, ['json' => $values]);
+        $this->request(RequestMethod::METHOD_PATCH, $uri, ['body' => JSON::encode($values)]);
     }
 
-    /**
-     * @param UriInterface|string $uri
-     *
-     * @throws DatabaseException
-     */
-    private function request(string $method, $uri, array $options = null): ResponseInterface
+    private function request($method, $uri, array $options = [])
     {
-        $options = $options ?? [];
-
-        $request = new Request($method, $uri);
-
         try {
-            return $this->httpClient->send($request, $options);
-        } catch (Throwable $e) {
-            throw $this->errorHandler->convertException($e);
+            return $this->httpClient->request($method, $uri, $options);
+        } catch (\Throwable $e) {
+            throw ApiException::wrapThrowable($e);
         }
     }
 }

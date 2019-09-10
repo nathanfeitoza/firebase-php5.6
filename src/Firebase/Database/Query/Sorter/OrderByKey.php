@@ -1,11 +1,9 @@
 <?php
 
-declare(strict_types=1);
+namespace Firebase\Database\Query\Sorter;
 
-namespace Kreait\Firebase\Database\Query\Sorter;
-
-use Kreait\Firebase\Database\Query\ModifierTrait;
-use Kreait\Firebase\Database\Query\Sorter;
+use Firebase\Database\Query\ModifierTrait;
+use Firebase\Database\Query\Sorter;
 use Psr\Http\Message\UriInterface;
 
 final class OrderByKey implements Sorter
@@ -19,11 +17,11 @@ final class OrderByKey implements Sorter
 
     public function modifyValue($value)
     {
-        if (!\is_array($value)) {
+        if (!is_array($value)) {
             return $value;
         }
 
-        \ksort($value);
+        ksort($value);
 
         return $value;
     }

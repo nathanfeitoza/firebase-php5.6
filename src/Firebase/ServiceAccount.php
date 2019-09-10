@@ -1,56 +1,36 @@
 <?php
 
-declare(strict_types=1);
+namespace Firebase;
 
-namespace Kreait\Firebase;
-
-use Kreait\Firebase\Exception\InvalidArgumentException;
-use Kreait\Firebase\ServiceAccount\Discoverer;
-use Kreait\Firebase\Util\JSON;
-use Throwable;
+use Firebase\Exception\InvalidArgumentException;
+use Firebase\Util\JSON;
 
 class ServiceAccount
 {
     private $projectId;
-    private $sanitizedProjectId;
     private $clientId;
     private $clientEmail;
     private $privateKey;
 
-    public function getProjectId(): string
+    public function getProjectId()
     {
         return $this->projectId;
     }
 
-    public function getSanitizedProjectId(): string
-    {
-        if (!$this->sanitizedProjectId) {
-            $this->sanitizedProjectId = \preg_replace('/[^A-Za-z0-9\-]/', '-', $this->projectId);
-        }
-
-        return $this->sanitizedProjectId;
-    }
-
-    public function withProjectId(string $value): self
+    public function withProjectId($value)
     {
         $serviceAccount = clone $this;
         $serviceAccount->projectId = $value;
-        $serviceAccount->sanitizedProjectId = null;
 
         return $serviceAccount;
     }
 
-    public function hasClientId(): bool
-    {
-        return (bool) $this->clientId;
-    }
-
-    public function getClientId(): string
+    public function getClientId()
     {
         return $this->clientId;
     }
 
-    public function withClientId(string $value): self
+    public function withClientId($value)
     {
         $serviceAccount = clone $this;
         $serviceAccount->clientId = $value;
@@ -58,15 +38,15 @@ class ServiceAccount
         return $serviceAccount;
     }
 
-    public function getClientEmail(): string
+    public function getClientEmail()
     {
         return $this->clientEmail;
     }
 
-    public function withClientEmail(string $value): self
+    public function withClientEmail($value)
     {
-        if (!\filter_var($value, \FILTER_VALIDATE_EMAIL)) {
-            throw new InvalidArgumentException(\sprintf('"%s" is not a valid email.', $value));
+        if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
+            throw new InvalidArgumentException(sprintf('"%s" is not a valid email.', $value));
         }
         $serviceAccount = clone $this;
         $serviceAccount->clientEmail = $value;
@@ -74,17 +54,12 @@ class ServiceAccount
         return $serviceAccount;
     }
 
-    public function hasPrivateKey(): bool
-    {
-        return (bool) $this->privateKey;
-    }
-
-    public function getPrivateKey(): string
+    public function getPrivateKey()
     {
         return $this->privateKey;
     }
 
-    public function withPrivateKey(string $value): self
+    public function withPrivateKey($value)
     {
         $serviceAccount = clone $this;
         $serviceAccount->privateKey = $value;
@@ -99,13 +74,13 @@ class ServiceAccount
      *
      * @return ServiceAccount
      */
-    public static function fromValue($value): self
+    public static function fromValue($value)
     {
         if ($value instanceof self) {
             return $value;
         }
 
-        if (\is_string($value)) {
+        if (is_string($value)) {
             try {
                 return self::fromJson($value);
             } catch (InvalidArgumentException $e) {
@@ -113,32 +88,17 @@ class ServiceAccount
             }
         }
 
-        if (\is_array($value)) {
+        if (is_array($value)) {
             return self::fromArray($value);
         }
 
         throw new InvalidArgumentException('Invalid service account specification.');
     }
 
-    public static function fromArray(array $config): self
+    private static function fromArray($config)
     {
-        $requiredFields = ['project_id', 'client_id', 'client_email', 'private_key'];
-        $missingFields = [];
-
-        foreach ($requiredFields as $field) {
-            if (!isset($config[$field])) {
-                $missingFields[] = $field;
-            }
-        }
-
-        if (!empty($missingFields)) {
-            throw new InvalidArgumentException(
-                'The following fields are missing/empty in the Service Account specification: "'
-                .\implode('", "', $missingFields)
-                .'". Please make sure you download the Service Account JSON file from the Service Accounts tab '
-                .'in the Firebase Console, as shown in the documentation on '
-                .'https://firebase.google.com/docs/admin/setup#add_firebase_to_your_app'
-            );
+        if (!isset($config['project_id'], $config['client_id'], $config['client_email'], $config['private_key'])) {
+            throw new InvalidArgumentException('Missing/empty values in Service Account Config.');
         }
 
         return (new self())
@@ -148,45 +108,19 @@ class ServiceAccount
             ->withPrivateKey($config['private_key']);
     }
 
-    public static function fromJson(string $json): self
+    private static function fromJson($json)
     {
         $config = JSON::decode($json, true);
 
         return self::fromArray($config);
     }
 
-    public static function fromJsonFile(string $filePath): self
+    private static function fromJsonFile($filePath)
     {
-        try {
-            $file = new \SplFileObject($filePath);
-            $json = $file->fread($file->getSize());
-        } catch (Throwable $e) {
-            throw new InvalidArgumentException(\sprintf('%s can not be read: %s', $filePath, $e->getMessage()));
+        if (!is_readable($filePath)) {
+            throw new InvalidArgumentException(sprintf('%s is not readable.', $filePath));
         }
 
-        try {
-            return self::fromJson($json);
-        } catch (Throwable $e) {
-            throw new InvalidArgumentException(\sprintf('%s could not be parsed to a Service Account: %s', $filePath, $e->getMessage()));
-        }
-    }
-
-    public static function withProjectIdAndServiceAccountId(string $projectId, string $serviceAccountId): self
-    {
-        $serviceAccount = new self();
-        $serviceAccount->projectId = $projectId;
-        $serviceAccount->clientEmail = $serviceAccountId;
-
-        return $serviceAccount;
-    }
-
-    /**
-     * @return ServiceAccount
-     */
-    public static function discover(Discoverer $discoverer = null): self
-    {
-        $discoverer = $discoverer ?: new Discoverer();
-
-        return $discoverer->discover();
+        return self::fromJson(file_get_contents($filePath));
     }
 }

@@ -1,8 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
-namespace Kreait\Firebase\Exception;
+namespace Firebase\Exception;
 
 class OutOfRangeException extends \OutOfRangeException implements FirebaseException
 {

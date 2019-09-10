@@ -1,11 +1,9 @@
 <?php
 
-declare(strict_types=1);
+namespace Firebase\Database\Query\Filter;
 
-namespace Kreait\Firebase\Database\Query\Filter;
-
-use Kreait\Firebase\Database\Query\Filter;
-use Kreait\Firebase\Database\Query\ModifierTrait;
+use Firebase\Database\Query\Filter;
+use Firebase\Database\Query\ModifierTrait;
 use Psr\Http\Message\UriInterface;
 
 final class Shallow implements Filter
