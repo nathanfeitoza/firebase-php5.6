@@ -1,13 +1,10 @@
 <?php
 
-declare(strict_types=1);
+namespace Firebase\Database;
 
-namespace Kreait\Firebase\Database;
-
-use JsonSerializable;
-
-class RuleSet implements JsonSerializable
+class RuleSet
 {
+
     /**
      * @var array
      */
@@ -29,7 +26,7 @@ class RuleSet implements JsonSerializable
      *
      * @see https://firebase.google.com/docs/database/security/quickstart#sample-rules
      */
-    public static function default(): self
+    public static function rulesDefault()
     {
         return new self([
             'rules' => [
@@ -49,7 +46,7 @@ class RuleSet implements JsonSerializable
      *
      * @see https://firebase.google.com/docs/database/security/quickstart#sample-rules
      */
-    public static function public(): self
+    public static function rulesPublic()
     {
         return new self([
             'rules' => [
@@ -65,7 +62,7 @@ class RuleSet implements JsonSerializable
      *
      * @see https://firebase.google.com/docs/database/security/quickstart#sample-rules
      */
-    public static function private(): self
+    public static function rulesPrivate()
     {
         return new self([
             'rules' => [
@@ -75,12 +72,12 @@ class RuleSet implements JsonSerializable
         ]);
     }
 
-    public static function fromArray(array $rules): self
+    public static function fromArray(array $rules)
     {
         return new self($rules);
     }
 
-    public function getRules(): array
+    public function getRules()
     {
         return $this->rules;
     }

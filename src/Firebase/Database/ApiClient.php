@@ -78,4 +78,20 @@ class ApiClient
             throw ApiException::wrapThrowable($e);
         }
     }
+
+    /**
+     * @param UriInterface|string $uri
+     *
+     * @throws DatabaseException
+     *
+     * @return mixed
+     */
+    public function updateRules($uri, RuleSet $ruleSet)
+    {
+        $response = $this->request('PUT', $uri, [
+            'body' => json_encode($ruleSet->getRules(), JSON_PRETTY_PRINT),
+        ]);
+
+        return JSON::decode((string) $response->getBody(), true);
+    }
 }

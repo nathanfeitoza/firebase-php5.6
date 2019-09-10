@@ -8,6 +8,7 @@ use Firebase\Exception\InvalidArgumentException;
 use Firebase\Exception\OutOfRangeException;
 use Firebase\Http\Auth;
 use GuzzleHttp\Psr7;
+use Firebase\Database\RuleSet;
 use Psr\Http\Message\UriInterface;
 
 /**
@@ -97,5 +98,36 @@ class Database
         }
 
         return new Reference($this->uri->withPath($uri->getPath()), $this->client);
+    }
+
+    /**
+     * Retrieve Firebase Database Rules.
+     *
+     * @see https://firebase.google.com/docs/database/rest/app-management#retrieving-firebase-realtime-database-rules
+     */
+    public function getRuleSet()
+    {
+        $rules = $this->client->get($this->uri->withPath('.settings/rules'));
+        return RuleSet::fromArray($rules);
+    }
+    /**
+     * Retrieve Firebase Database Rules.
+     *
+     * @deprecated 4.32.0 Use \Kreait\Firebase\Database::getRuleSet() instead
+     * @see getRuleSet()
+     */
+    public function getRules()
+    {
+        return $this->getRuleSet();
+    }
+
+    /**
+     * Update Firebase Database Rules.
+     *
+     * @see https://firebase.google.com/docs/database/rest/app-management#updating-firebase-realtime-database-rules
+     */
+    public function updateRules(RuleSet $ruleSet)
+    {
+        $this->client->updateRules($this->uri->withPath('.settings/rules'), $ruleSet);
     }
 }

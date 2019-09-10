@@ -23,7 +23,7 @@ or join the Firebase Community Slack at https://firebase-community.appspot.com a
  
 ## Documentation
 
-You can find the documentation at http://firebase-php.readthedocs.io/
+You can find the documentation at https://firebase-php.readthedocs.io/en/2.3.1
 
 - [Requirements](http://firebase-php.readthedocs.io/en/latest/overview.html#requirements)
 - [Installation](http://firebase-php.readthedocs.io/en/latest/overview.html#installation)
