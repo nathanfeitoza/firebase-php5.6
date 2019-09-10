@@ -1,4 +1,4 @@
-# Firebase Admin SDK for PHP
+# Firebase Admin SDK for PHP 5.6
 
 This repository is a fork of the original version 2.3.1 so that users of php version 5.6 or lower can work with google firebase.
 
