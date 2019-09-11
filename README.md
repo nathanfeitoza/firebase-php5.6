@@ -27,6 +27,11 @@ You can find the documentation at https://firebase-php.readthedocs.io/en/2.3.1
 
 - [Requirements](http://firebase-php.readthedocs.io/en/latest/overview.html#requirements)
 - [Installation](http://firebase-php.readthedocs.io/en/latest/overview.html#installation)
+
+```
+    composer require nathanfeitoza/firebase-php5.6
+```
+
 - [Authentication](http://firebase-php.readthedocs.io/en/latest/authentication.html)
 - [Working with the Realtime Database](http://firebase-php.readthedocs.io/en/latest/realtime-database.html)
 
