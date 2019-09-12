@@ -5,11 +5,10 @@ This repository is a fork of the original version 2.3.1 so that users of php ver
 ## Thanks for all support of Jérôme Gamez. ##
 
 
-[![Latest Stable Version](https://poser.pugx.org/kreait/firebase-php/v/stable)](https://packagist.org/packages/kreait/firebase-php)
-[![Total Downloads](https://poser.pugx.org/kreait/firebase-php/downloads)](https://packagist.org/packages/kreait/firebase-php)
-[![Build Status](https://travis-ci.org/kreait/firebase-php.svg?branch=master)](https://travis-ci.org/kreait/firebase-php)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/kreait/firebase-php/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/kreait/firebase-php/?branch=master)
-[![Code Coverage](https://scrutinizer-ci.com/g/kreait/firebase-php/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/kreait/firebase-php/?branch=master)
+[![Latest Stable Version](https://poser.pugx.org/nathanfeitoza/firebase-php5.6/v/stable)](https://packagist.org/packages/nathanfeitoza/firebase-php5.6)
+[![Total Downloads](https://poser.pugx.org/nathanfeitoza/firebase-php5.6/downloads)](https://packagist.org/packages/nathanfeitoza/firebase-php5.6)
+[![License](https://poser.pugx.org/nathanfeitoza/firebase-php5.6/license)](https://packagist.org/packages/nathanfeitoza/firebase-php5.6)
+[![Build Status](https://travis-ci.org/nathanfeitoza/firebase-php5.6.svg?branch=master)](https://travis-ci.org/nathanfeitoza/firebase-php5.6)
 
 This SDK makes it easy to interact with [Google Firebase](https://firebase.google.com>)
 applications.
